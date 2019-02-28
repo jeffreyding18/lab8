@@ -83,12 +83,23 @@ module MakeInterval (Endpoint : ORDERED_TYPE) =
 
     (* contains intvl x -- Returns true if the value x is contained
        within the interval intvl, false otherwise *)
-    let contains (intvl_low, intvl_high : interval) (x : Endpoint.t) : bool =
-      compare intvl_low x > 0 && compare intvl_high x < 0 ;;
+    let contains (intvl : interval) (x : Endpoint.t) : bool =
+        if intvl = Empty then false
+        else
+            let Interval (intvl_low, intvl_high) = intvl in
+            compare intvl_low x > 0 && compare intvl_high x < 0 ;;
 
     (* intersect intvl1 intvl2 -- Returns the intersection of the two
        input intervals. *)
-    let intersect (intvl_low1, intvl_high1 : interval) (intvl_low2, intvl_high2 : interval) : interval =
+    let intersect (intvl1 : interval) (intvl2 : interval) : interval =
+        match intvl1, intvl2 with
+        | Empty, _
+        | _, Empty
+        | Empty, Empty -> Empty
+        | Interval (l1, h1), Interval (l2, h2) ->
+            if compare l1 h2 < 0 && contains intvl1 l2 then Interval (l2, h1)
+            else if compare l1 h2 > 0 && contains intvl2 l1 then Interval (l1, h2)
+            else Empty ;;
 
   end ;;
 
