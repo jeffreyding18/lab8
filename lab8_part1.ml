@@ -6,7 +6,7 @@
 
 (* Objective:
 
-This lab practices concepts of functors. 
+This lab practices concepts of functors.
 
 This part of the lab has been adapted from the functors chapter of
 Real World OCaml <http://dev.realworldocaml.org/functors.html>. *)
@@ -16,7 +16,7 @@ Functors - Part 1.
 
 For the first part of this lab, you will explore a realistic and
 useful application of functors -- a library to support interval
-computation. 
+computation.
 
 Intervals come up in many different contexts, and importantly for
 different data types. For instance you may want to use intervals of
@@ -50,7 +50,7 @@ used by the Pervasives.compare function:
     compare x y > 0     (* x > y *)
  *)
 
-module type ORDERED_TYPE = 
+module type ORDERED_TYPE =
   sig
     type t
     val compare : t -> t -> int
@@ -65,7 +65,7 @@ representation has an invariant that x is always less than or equal to
 y.
 ......................................................................*)
 
-module MakeInterval (Endpoint : ORDERED_TYPE) = 
+module MakeInterval (Endpoint : ORDERED_TYPE) =
   struct
     type interval =
       | Interval of Endpoint.t * Endpoint.t
@@ -74,21 +74,22 @@ module MakeInterval (Endpoint : ORDERED_TYPE) =
     (* create low high -- Returns a new interval covering low to
        high. If low > high, then the interval is empty. *)
     let create (low : Endpoint.t) (high : Endpoint.t) : interval =
-      failwith "not implemented"
+      if compare low high > 0 then Empty
+      else Interval (low, high) ;;
 
     (* is_empty intvl -- Returns true if and only if the interval is empty *)
     let is_empty (intvl : interval) : bool =
-      failwith "not implemented"
+      intvl = Empty ;;
 
     (* contains intvl x -- Returns true if the value x is contained
        within the interval intvl, false otherwise *)
-    let contains (intvl : interval) (x : Endpoint.t) : bool =
-      failwith "not implemented"
+    let contains (intvl_low, intvl_high : interval) (x : Endpoint.t) : bool =
+      compare intvl_low x > 0 && compare intvl_high x < 0 ;;
 
     (* intersect intvl1 intvl2 -- Returns the intersection of the two
        input intervals. *)
-    let intersect (intvl1 : interval) (intvl2 : interval) : interval =
-      failwith "not implemented"
+    let intersect (intvl_low1, intvl_high1 : interval) (intvl_low2, intvl_high2 : interval) : interval =
+
   end ;;
 
 (*......................................................................
@@ -133,12 +134,12 @@ module. Note in particular that we should add a new type endpoint to
 give us a way of referring to the endpoints of an interval.
 ......................................................................*)
 
-module type INTERVAL = 
-  sig 
+module type INTERVAL =
+  sig
     type interval
     type endpoint
     (* ... complete the interface here ... *)
-  end 
+  end
 ;;
 
 (*......................................................................
@@ -166,9 +167,9 @@ module IntSafeInterval = struct end ;;
 
 (* Now, try evaluating the following expression in the REPL:
 
-    IntSafeInterval.create 2 3 ;; 
+    IntSafeInterval.create 2 3 ;;
 
-A type error will appear: 
+A type error will appear:
 
     Error: This expression has type int but an expression was expected of type
            IntInterval.endpoint
